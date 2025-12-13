@@ -333,7 +333,7 @@ services:
       - "traefik.http.routers.worker-renewal.tls.certresolver=letsencrypt"
 
     # Service
-      - "traefik.http.services.minio.loadbalancer.server.port=8093"
+      - "traefik.http.services.worker-renewal.loadbalancer.server.port=8093"
 
     logging:
       driver: "json-file"
