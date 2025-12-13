@@ -22,7 +22,7 @@ include:
   - docker-compose.yml
 
   # Supabase backend services
-  - path: supa/supabase/docker/docker-compose.yml
+  - path: ./supabase/docker/docker-compose.yml
     env_file: .env  # Use root .env for all Supabase services
 
   # Note: Supabase service overrides are applied via deploy.sh using multiple -f flags
