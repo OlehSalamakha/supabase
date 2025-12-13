@@ -151,7 +151,7 @@ services:
       timeout: 10s
       retries: 5
     volumes:
-      - ./volumes/storage:/data:z
+      - minio-data:/data
 
   #
   # whisper-service:
@@ -341,3 +341,4 @@ volumes:
   prometheus_data:
   alertmanager_data:
   whisper-models:
+  minio-data:
