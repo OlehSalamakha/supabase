@@ -9,18 +9,18 @@ networks:
 
 
 services:
-  np:
-    image: 'jc21/nginx-proxy-manager:latest'
-    restart: unless-stopped
-    networks: [proxy_net]
-    ports:
-      - '80:80'
-      - '443:443'
-      - '81:81'
-    volumes:
-      - ./np:/data
-      - ./letsencrypt:/etc/letsencrypt
-
+  # np:
+  #   image: 'jc21/nginx-proxy-manager:latest'
+  #   restart: unless-stopped
+  #   networks: [proxy_net]
+  #   ports:
+  #     - '80:80'
+  #     - '443:443'
+  #     - '81:81'
+  #   volumes:
+  #     - ./np:/data
+  #     - ./letsencrypt:/etc/letsencrypt
+  #
   # ============================================================================
   # MONITORING STACK
   # To enable: Use deploy.sh --with-monitoring or docker compose --profile monitoring up -d
@@ -194,120 +194,120 @@ services:
       retries: 3
       start_period: 60s
 
-
-  worker-transcription:
-    build:
-      context: ../worker-transcription
-      dockerfile: Dockerfile
-    image: memozen-transcription-worker:latest
-    container_name: memozen-transcription-worker
-    restart: unless-stopped
-    networks:
-      - default
-      - proxy_net
-    ports:
-      - "8090:8090"  # Prometheus metrics endpoint
-    environment:
-      - SUPABASE_URL=${API_EXTERNAL_URL}
-      - SUPABASE_KEY=${SERVICE_ROLE_KEY}
-      - OPENAI_API_KEY=${OPENAI_API_KEY}
-      - WHISPER_API_URL=${WHISPER_API_URL:-http://whisper-service:8095}
-      - WHISPER_MODEL=${WHISPER_MODEL:-whisper-1}
-      - ANALYZE_MODEL=${ANALYZE_MODEL:-gpt-4o-mini}
-      - METRICS_PORT=8090
-      - REVENUECAT_API_KEY=${REVENUECAT_API_KEY}
-      - REVENUECAT_WEBHOOK_SECRET=${REVENUECAT_WEBHOOK_SECRET}
-
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "10m"
-        max-file: "3"
-
-  worker-analysis:
-    build:
-      context: ../worker-analysis
-      dockerfile: Dockerfile
-    image: memozen-analysis-worker:latest
-    container_name: memozen-analysis-worker
-    restart: unless-stopped
-    networks:
-      - default
-      - proxy_net
-    ports:
-      - "8091:8091"  # Prometheus metrics endpoint
-    environment:
-      - SUPABASE_URL=${API_EXTERNAL_URL}
-      - SUPABASE_KEY=${SERVICE_ROLE_KEY}
-      - OPENAI_API_KEY=${OPENAI_API_KEY}
-      - ANALYZE_MODEL=${ANALYZE_MODEL:-gpt-4o-mini}
-      - METRICS_PORT=8091
-      - REVENUECAT_API_KEY=${REVENUECAT_API_KEY}
-      - REVENUECAT_WEBHOOK_SECRET=${REVENUECAT_WEBHOOK_SECRET}
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "10m"
-        max-file: "3"
-    depends_on:
-      - worker-transcription
-
-  worker-embedding:
-    build:
-      context: ../worker-embedding
-      dockerfile: Dockerfile
-    image: memozen-embedding-worker:latest
-    container_name: memozen-embedding-worker
-    restart: unless-stopped
-    networks:
-      - default
-      - proxy_net
-    ports:
-      - "8092:8092"  # Prometheus metrics endpoint
-    environment:
-      - SUPABASE_URL=${API_EXTERNAL_URL}
-      - SUPABASE_KEY=${SERVICE_ROLE_KEY}
-      - OPENAI_API_KEY=${OPENAI_API_KEY}
-      - EMBEDDING_MODEL=${EMBEDDING_MODEL:-text-embedding-3-small}
-      - METRICS_PORT=8092
-      - REVENUECAT_API_KEY=${REVENUECAT_API_KEY}
-      - REVENUECAT_WEBHOOK_SECRET=${REVENUECAT_WEBHOOK_SECRET}
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "10m"
-        max-file: "3"
-    depends_on:
-      - worker-analysis
-
-  worker-renewal:
-    build:
-      context: ../worker-renewal
-      dockerfile: Dockerfile
-    image: memozen-renewal-worker:latest
-    container_name: memozen-renewal-worker
-    restart: unless-stopped
-    networks:
-      - default
-      - proxy_net
-    ports:
-      - "8093:8093"  # Webhook endpoint
-      - "8094:8094"  # Prometheus metrics endpoint
-    environment:
-      - SUPABASE_URL=${API_EXTERNAL_URL}
-      - SUPABASE_KEY=${SERVICE_ROLE_KEY}
-      - REVENUECAT_API_KEY=${REVENUECAT_API_KEY}
-      - REVENUECAT_WEBHOOK_SECRET=${REVENUECAT_WEBHOOK_SECRET}
-      - WEBHOOK_PORT=8093
-      - METRICS_PORT=8094
-      - RENEWAL_CHECK_INTERVAL_MS=${RENEWAL_CHECK_INTERVAL_MS:-3600000}
-      - OPENAI_API_KEY=${OPENAI_API_KEY}
-      - FREE_USER_RESET_DAYS=${FREE_USER_RESET_DAYS:-30}
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "10m"
-        max-file: "3"
+  #
+  # worker-transcription:
+  #   build:
+  #     context: ../worker-transcription
+  #     dockerfile: Dockerfile
+  #   image: memozen-transcription-worker:latest
+  #   container_name: memozen-transcription-worker
+  #   restart: unless-stopped
+  #   networks:
+  #     - default
+  #     - proxy_net
+  #   ports:
+  #     - "8090:8090"  # Prometheus metrics endpoint
+  #   environment:
+  #     - SUPABASE_URL=${API_EXTERNAL_URL}
+  #     - SUPABASE_KEY=${SERVICE_ROLE_KEY}
+  #     - OPENAI_API_KEY=${OPENAI_API_KEY}
+  #     - WHISPER_API_URL=${WHISPER_API_URL:-http://whisper-service:8095}
+  #     - WHISPER_MODEL=${WHISPER_MODEL:-whisper-1}
+  #     - ANALYZE_MODEL=${ANALYZE_MODEL:-gpt-4o-mini}
+  #     - METRICS_PORT=8090
+  #     - REVENUECAT_API_KEY=${REVENUECAT_API_KEY}
+  #     - REVENUECAT_WEBHOOK_SECRET=${REVENUECAT_WEBHOOK_SECRET}
+  #
+  #   logging:
+  #     driver: "json-file"
+  #     options:
+  #       max-size: "10m"
+  #       max-file: "3"
+  #
+  # worker-analysis:
+  #   build:
+  #     context: ../worker-analysis
+  #     dockerfile: Dockerfile
+  #   image: memozen-analysis-worker:latest
+  #   container_name: memozen-analysis-worker
+  #   restart: unless-stopped
+  #   networks:
+  #     - default
+  #     - proxy_net
+  #   ports:
+  #     - "8091:8091"  # Prometheus metrics endpoint
+  #   environment:
+  #     - SUPABASE_URL=${API_EXTERNAL_URL}
+  #     - SUPABASE_KEY=${SERVICE_ROLE_KEY}
+  #     - OPENAI_API_KEY=${OPENAI_API_KEY}
+  #     - ANALYZE_MODEL=${ANALYZE_MODEL:-gpt-4o-mini}
+  #     - METRICS_PORT=8091
+  #     - REVENUECAT_API_KEY=${REVENUECAT_API_KEY}
+  #     - REVENUECAT_WEBHOOK_SECRET=${REVENUECAT_WEBHOOK_SECRET}
+  #   logging:
+  #     driver: "json-file"
+  #     options:
+  #       max-size: "10m"
+  #       max-file: "3"
+  #   depends_on:
+  #     - worker-transcription
+  #
+  # worker-embedding:
+  #   build:
+  #     context: ../worker-embedding
+  #     dockerfile: Dockerfile
+  #   image: memozen-embedding-worker:latest
+  #   container_name: memozen-embedding-worker
+  #   restart: unless-stopped
+  #   networks:
+  #     - default
+  #     - proxy_net
+  #   ports:
+  #     - "8092:8092"  # Prometheus metrics endpoint
+  #   environment:
+  #     - SUPABASE_URL=${API_EXTERNAL_URL}
+  #     - SUPABASE_KEY=${SERVICE_ROLE_KEY}
+  #     - OPENAI_API_KEY=${OPENAI_API_KEY}
+  #     - EMBEDDING_MODEL=${EMBEDDING_MODEL:-text-embedding-3-small}
+  #     - METRICS_PORT=8092
+  #     - REVENUECAT_API_KEY=${REVENUECAT_API_KEY}
+  #     - REVENUECAT_WEBHOOK_SECRET=${REVENUECAT_WEBHOOK_SECRET}
+  #   logging:
+  #     driver: "json-file"
+  #     options:
+  #       max-size: "10m"
+  #       max-file: "3"
+  #   depends_on:
+  #     - worker-analysis
+  #
+  # worker-renewal:
+  #   build:
+  #     context: ../worker-renewal
+  #     dockerfile: Dockerfile
+  #   image: memozen-renewal-worker:latest
+  #   container_name: memozen-renewal-worker
+  #   restart: unless-stopped
+  #   networks:
+  #     - default
+  #     - proxy_net
+  #   ports:
+  #     - "8093:8093"  # Webhook endpoint
+  #     - "8094:8094"  # Prometheus metrics endpoint
+  #   environment:
+  #     - SUPABASE_URL=${API_EXTERNAL_URL}
+  #     - SUPABASE_KEY=${SERVICE_ROLE_KEY}
+  #     - REVENUECAT_API_KEY=${REVENUECAT_API_KEY}
+  #     - REVENUECAT_WEBHOOK_SECRET=${REVENUECAT_WEBHOOK_SECRET}
+  #     - WEBHOOK_PORT=8093
+  #     - METRICS_PORT=8094
+  #     - RENEWAL_CHECK_INTERVAL_MS=${RENEWAL_CHECK_INTERVAL_MS:-3600000}
+  #     - OPENAI_API_KEY=${OPENAI_API_KEY}
+  #     - FREE_USER_RESET_DAYS=${FREE_USER_RESET_DAYS:-30}
+  #   logging:
+  #     driver: "json-file"
+  #     options:
+  #       max-size: "10m"
+  #       max-file: "3"
   loki:
     image: grafana/loki:3.0.0
     networks:
