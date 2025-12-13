@@ -319,6 +319,22 @@ services:
       - RENEWAL_CHECK_INTERVAL_MS=${RENEWAL_CHECK_INTERVAL_MS:-3600000}
       - OPENAI_API_KEY=${OPENAI_API_KEY}
       - FREE_USER_RESET_DAYS=${FREE_USER_RESET_DAYS:-30}
+    labels:
+      - "traefik.enable=true"
+      # HTTP → HTTPS redirect (опціонально, але рекомендую)
+      - "traefik.http.routers.worker-renewal-http.rule=Host(`${PAYWALL_ENDPOINT}`)"
+      - "traefik.http.routers.worker-renewal-http.entrypoints=web"
+      - "traefik.http.routers.worker-renewal-http.middlewares=redirect-to-https"
+
+    # HTTPS router
+      - "traefik.http.routers.worker-renewal.rule=Host(`storage.memozen.ai`)"
+      - "traefik.http.routers.worker-renewal.entrypoints=websecure"
+      - "traefik.http.routers.worker-renewal.tls=true"
+      - "traefik.http.routers.worker-renewal.tls.certresolver=letsencrypt"
+
+    # Service
+      - "traefik.http.services.minio.loadbalancer.server.port=8093"
+
     logging:
       driver: "json-file"
       options:
