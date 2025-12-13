@@ -155,12 +155,12 @@ services:
     labels:
       - "traefik.enable=true"
       # HTTP → HTTPS redirect (опціонально, але рекомендую)
-      - "traefik.http.routers.minio-http.rule=Host(`storage.memozen.ai`)"
+      - "traefik.http.routers.minio-http.rule=Host(`${MINIO_DOMAIN}`)"
       - "traefik.http.routers.minio-http.entrypoints=web"
       - "traefik.http.routers.minio-http.middlewares=redirect-to-https"
 
     # HTTPS router
-      - "traefik.http.routers.minio.rule=Host(`storage.memozen.ai`)"
+      - "traefik.http.routers.minio.rule=Host(`${MINIO_DOMAIN}`)"
       - "traefik.http.routers.minio.entrypoints=websecure"
       - "traefik.http.routers.minio.tls=true"
       - "traefik.http.routers.minio.tls.certresolver=letsencrypt"
@@ -327,7 +327,7 @@ services:
       - "traefik.http.routers.worker-renewal-http.middlewares=redirect-to-https"
 
     # HTTPS router
-      - "traefik.http.routers.worker-renewal.rule=Host(`storage.memozen.ai`)"
+      - "traefik.http.routers.worker-renewal.rule=Host(`${PAYWALL_ENDPOINT}`)"
       - "traefik.http.routers.worker-renewal.entrypoints=websecure"
       - "traefik.http.routers.worker-renewal.tls=true"
       - "traefik.http.routers.worker-renewal.tls.certresolver=letsencrypt"
