@@ -204,7 +204,6 @@ services:
     restart: unless-stopped
     networks:
       - default
-      - proxy_net
     ports:
       - "8090:8090"  # Prometheus metrics endpoint
     environment:
@@ -233,7 +232,6 @@ services:
     restart: unless-stopped
     networks:
       - default
-      - proxy_net
     ports:
       - "8091:8091"  # Prometheus metrics endpoint
     environment:
@@ -261,7 +259,6 @@ services:
      restart: unless-stopped
      networks:
        - default
-       - proxy_net
      ports:
        - "8092:8092"  # Prometheus metrics endpoint
      environment:
@@ -289,7 +286,6 @@ services:
     restart: unless-stopped
     networks:
       - default
-      - proxy_net
     ports:
       - "8093:8093"  # Webhook endpoint
       - "8094:8094"  # Prometheus metrics endpoint
