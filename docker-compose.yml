@@ -152,6 +152,23 @@ services:
     volumes:
       - minio-data:/data
 
+    labels:
+      - "traefik.enable=true"
+      # HTTP → HTTPS redirect (опціонально, але рекомендую)
+      - "traefik.http.routers.minio-http.rule=Host(`storage.memozen.ai`)"
+      - "traefik.http.routers.minio-http.entrypoints=web"
+      - "traefik.http.routers.minio-http.middlewares=redirect-to-https"
+
+    # HTTPS router
+      - "traefik.http.routers.minio.rule=Host(`storage.memozen.ai`)"
+      - "traefik.http.routers.minio.entrypoints=websecure"
+      - "traefik.http.routers.minio.tls=true"
+      - "traefik.http.routers.minio.tls.certresolver=letsencrypt"
+
+    # Service
+      - "traefik.http.services.minio.loadbalancer.server.port=9001"
+
+
   #
   # whisper-service:
   #   build:
