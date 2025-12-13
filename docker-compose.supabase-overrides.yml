@@ -38,6 +38,7 @@ services:
     
   auth:
     networks:
+      - dokploy-network
       - default
     environment:
       GOTRUE_EXTERNAL_GOOGLE_ENABLED: ${ENABLE_GOOGLE_SIGNUP}
@@ -90,6 +91,7 @@ services:
 
   storage:
     networks:
+      - dokploy-network
       - default
     container_name: supabase-storage
     image: supabase/storage-api:v1.11.13
@@ -148,18 +150,22 @@ services:
 
   rest:
     networks:
+      - dokploy-network
       - default
 
   realtime:
     networks:
       - default
+      - dokploy-network
   meta:
     networks:
       - default
+      - dokploy-network
 
   db:
     networks:
       - default
+      - dokploy-network
     volumes:
       - ${PWD}/docker/volumes/db/realtime.sql:/docker-entrypoint-initdb.d/migrations/99-realtime.sql:Z
       - ${PWD}/docker/volumes/db/webhooks.sql:/docker-entrypoint-initdb.d/init-scripts/98-webhooks.sql:Z
@@ -187,15 +193,17 @@ services:
   functions:
     networks:
       - default
+      - dokploy-network
 
   analytics:
     networks:
       - default
-
+      - dokploy-network
 
   imgproxy:
     networks:
       - default
+      - dokploy-network
     container_name: supabase-imgproxy
     image: darthsim/imgproxy:v3.8.0
     healthcheck:
@@ -211,10 +219,12 @@ services:
   vector:
     networks:
       - default
+      - dokploy-network
 
   supavisor:
     networks:
       - default
+      - dokploy-network
 
 
 
