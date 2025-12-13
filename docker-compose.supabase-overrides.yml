@@ -15,7 +15,7 @@ services:
 
   kong:
     ports:
-      - "8000:8000"
+      - "9060:8000"
     networks:
       - default
 
