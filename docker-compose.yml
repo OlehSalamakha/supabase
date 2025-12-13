@@ -153,47 +153,47 @@ services:
     volumes:
       - ./volumes/storage:/data:z
 
-
-  whisper-service:
-    build:
-      context: ../whisper-service
-      dockerfile: Dockerfile
-    image: memozen-whisper-service:latest
-    container_name: memozen-whisper-service
-    restart: unless-stopped
-    networks:
-      - default
-      - proxy_net
-    ports:
-      - "8095:8095"  # Whisper API endpoint
-    environment:
-      - WHISPER_MODEL=${WHISPER_MODEL:-base}
-      - MODEL_CACHE_DIR=/models
-      - DEVICE=${WHISPER_DEVICE:-cpu}
-      - COMPUTE_TYPE=${WHISPER_COMPUTE_TYPE:-int8}
-      - BEAM_SIZE=${BEAM_SIZE:-5}
-      - VAD_FILTER=${VAD_FILTER:-true}
-      - VAD_MIN_SILENCE_DURATION_MS=${VAD_MIN_SILENCE_DURATION_MS:-500}
-      - HOST=0.0.0.0
-      - PORT=8095
-      - LOG_LEVEL=${LOG_LEVEL:-info}
-      - MAX_FILE_SIZE_MB=${MAX_FILE_SIZE_MB:-25}
-      - TEMP_DIR=/tmp/whisper
-      - NUM_WORKERS=${WHISPER_NUM_WORKERS:-1}
-    volumes:
-      - whisper-models:/models
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "10m"
-        max-file: "3"
-    healthcheck:
-      test: ["CMD", "python", "-c", "import requests; requests.get('http://localhost:8095/health').raise_for_status()"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 60s
-
+  #
+  # whisper-service:
+  #   build:
+  #     context: ../whisper-service
+  #     dockerfile: Dockerfile
+  #   image: memozen-whisper-service:latest
+  #   container_name: memozen-whisper-service
+  #   restart: unless-stopped
+  #   networks:
+  #     - default
+  #     - proxy_net
+  #   ports:
+  #     - "8095:8095"  # Whisper API endpoint
+  #   environment:
+  #     - WHISPER_MODEL=${WHISPER_MODEL:-base}
+  #     - MODEL_CACHE_DIR=/models
+  #     - DEVICE=${WHISPER_DEVICE:-cpu}
+  #     - COMPUTE_TYPE=${WHISPER_COMPUTE_TYPE:-int8}
+  #     - BEAM_SIZE=${BEAM_SIZE:-5}
+  #     - VAD_FILTER=${VAD_FILTER:-true}
+  #     - VAD_MIN_SILENCE_DURATION_MS=${VAD_MIN_SILENCE_DURATION_MS:-500}
+  #     - HOST=0.0.0.0
+  #     - PORT=8095
+  #     - LOG_LEVEL=${LOG_LEVEL:-info}
+  #     - MAX_FILE_SIZE_MB=${MAX_FILE_SIZE_MB:-25}
+  #     - TEMP_DIR=/tmp/whisper
+  #     - NUM_WORKERS=${WHISPER_NUM_WORKERS:-1}
+  #   volumes:
+  #     - whisper-models:/models
+  #   logging:
+  #     driver: "json-file"
+  #     options:
+  #       max-size: "10m"
+  #       max-file: "3"
+  #   healthcheck:
+  #     test: ["CMD", "python", "-c", "import requests; requests.get('http://localhost:8095/health').raise_for_status()"]
+  #     interval: 30s
+  #     timeout: 10s
+  #     retries: 3
+  #     start_period: 60s
+  #
   #
   # worker-transcription:
   #   build:
