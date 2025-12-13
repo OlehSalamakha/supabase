@@ -81,7 +81,7 @@ services:
     image: prom/node-exporter:v1.8.2
     container_name: memozen-node-exporter
     profiles: ["monitoring"]
-    networks: [proxy_net]
+    #networks: [proxy_net]
     restart: unless-stopped
     command:
       - "--path.rootfs=/host"
@@ -310,7 +310,7 @@ services:
   #       max-file: "3"
   loki:
     image: grafana/loki:3.0.0
-    networks:
+   # networks:
    #   - proxy_net
 
     container_name: loki
@@ -325,7 +325,7 @@ services:
   promtail:
     image: grafana/promtail:3.0.0
     container_name: promtail
-    networks:
+    #networks:
       #- proxy_net
     volumes:
       - ./promtail/promtail-config.yml:/etc/promtail/config.yml:ro
