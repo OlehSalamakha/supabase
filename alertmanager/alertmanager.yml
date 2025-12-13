@@ -1,0 +1,128 @@
+global:
+  resolve_timeout: 5m
+
+# Templates for custom notification formatting
+templates:
+  - '/etc/alertmanager/*.tmpl'
+
+# Route defines how alerts are routed to different receivers
+route:
+  # Default receiver for all alerts
+  receiver: 'default'
+
+  # Group alerts by these labels to reduce notification spam
+  group_by: ['alertname', 'cluster', 'service']
+
+  # How long to wait before sending notification about new alerts
+  group_wait: 10s
+
+  # How long to wait before sending notification about new alerts added to a group
+  group_interval: 10s
+
+  # How long to wait before re-sending a notification
+  repeat_interval: 12h
+
+  # Child routes
+  routes:
+    # Critical alerts - send immediately
+    - receiver: 'critical'
+      match:
+        severity: critical
+      group_wait: 0s
+      repeat_interval: 4h
+
+    # Warning alerts - can be grouped
+    - receiver: 'warning'
+      match:
+        severity: warning
+      group_wait: 30s
+      repeat_interval: 12h
+
+# Inhibition rules - suppress alerts when other alerts are firing
+inhibit_rules:
+  # Inhibit warning if critical alert for same resource is firing
+  - source_match:
+      severity: 'critical'
+    target_match:
+      severity: 'warning'
+    equal: ['alertname', 'instance']
+
+receivers:
+  # Default receiver - change this to your preferred channel
+  - name: 'default'
+    # Uncomment ONE of the following sections based on your preference:
+
+    # === TELEGRAM ===
+    telegram_configs:
+      - bot_token: 8208318169:AAFefe8qlpi8AozDkjXf08nYX51U2TSWH8g
+        chat_id: 180339147
+        parse_mode: 'HTML'
+        message: |
+          <b>{{ .GroupLabels.alertname }}</b>
+          {{ range .Alerts }}
+          Status: {{ .Status }}
+          {{ .Annotations.summary }}
+          {{ .Annotations.description }}
+          {{ end }}
+
+    # === SLACK ===
+    # slack_configs:
+    #   - api_url: 'https://hooks.slack.com/services/YOUR/WEBHOOK/URL'
+    #     channel: '#alerts'
+    #     title: '{{ .GroupLabels.alertname }}'
+    #     text: |
+    #       {{ range .Alerts }}
+    #       *Alert:* {{ .Annotations.summary }}
+    #       *Description:* {{ .Annotations.description }}
+    #       *Severity:* {{ .Labels.severity }}
+    #       {{ end }}
+
+    # === DISCORD ===
+    # discord_configs:
+    #   - webhook_url: 'https://discord.com/api/webhooks/YOUR/WEBHOOK/URL'
+    #     title: '{{ .GroupLabels.alertname }}'
+    #     message: |
+    #       {{ range .Alerts }}
+    #       **Alert:** {{ .Annotations.summary }}
+    #       **Description:** {{ .Annotations.description }}
+    #       **Severity:** {{ .Labels.severity }}
+    #       {{ end }}
+
+    # === WEBHOOK (Generic) ===
+    # webhook_configs:
+    #   - url: 'http://localhost:5001/webhook'
+    #     send_resolved: true
+        # This is a placeholder - replace with your actual webhook URL
+
+  # Critical alerts receiver
+  - name: 'critical'
+  #   # Copy your preferred config from 'default' above
+    telegram_configs:
+      - bot_token: 8208318169:AAFefe8qlpi8AozDkjXf08nYX51U2TSWH8g
+        chat_id: 180339147
+        parse_mode: 'HTML'
+        message: |
+          <b>{{ .GroupLabels.alertname }}</b>
+          {{ range .Alerts }}
+          Status: {{ .Status }}
+          {{ .Annotations.summary }}
+          {{ .Annotations.description }}
+          {{ end }}
+
+  # Warning alerts receiver
+  - name: 'warning'
+    telegram_configs:
+      - bot_token: 8208318169:AAFefe8qlpi8AozDkjXf08nYX51U2TSWH8g
+        chat_id: 180339147
+        parse_mode: 'HTML'
+        message: |
+          <b>{{ .GroupLabels.alertname }}</b>
+          {{ range .Alerts }}
+          Status: {{ .Status }}
+          {{ .Annotations.summary }}
+          {{ .Annotations.description }}
+          {{ end }}
+  #   # Copy your preferred config from 'default' above
+  #   webhook_configs:
+  #     - url: 'http://localhost:5001/webhook/warning'
+  #       send_resolved: true

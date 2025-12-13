@@ -1,0 +1,76 @@
+groups:
+  - name: workers
+    interval: 30s
+    rules:
+      # Worker down
+      - alert: WorkerDown
+        expr: up{service="worker"} == 0
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Worker {{ $labels.worker_type }} is down"
+          description: "Worker {{ $labels.worker_type }} has been down for more than 2 minutes."
+
+      # High worker error rate (when metrics are implemented)
+      - alert: WorkerHighErrorRate
+        expr: rate(worker_processing_errors_total[10m]) / rate(worker_processing_total[10m]) > 0.1
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Worker {{ $labels.worker_type }} has high error rate"
+          description: "Worker {{ $labels.worker_type }} error rate is above 10% (current: {{ $value | humanizePercentage }})"
+
+      # Worker processing slow (when metrics are implemented)
+      - alert: WorkerProcessingSlow
+        expr: histogram_quantile(0.95, rate(worker_processing_duration_seconds_bucket[10m])) > 300
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Worker {{ $labels.worker_type }} is processing slowly"
+          description: "Worker {{ $labels.worker_type }} 95th percentile processing time is above 5 minutes (current: {{ $value | humanizeDuration }})"
+
+      # Worker queue growing (when metrics are implemented)
+      - alert: WorkerQueueGrowing
+        expr: worker_queue_depth > 50 and rate(worker_queue_depth[10m]) > 0
+        for: 15m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Worker {{ $labels.worker_type }} queue is growing"
+          description: "Worker {{ $labels.worker_type }} has {{ $value }} items in queue and it's growing."
+
+  - name: containers
+    interval: 30s
+    rules:
+      # Container high CPU
+      - alert: ContainerHighCPU
+        expr: sum by (name) (rate(container_cpu_usage_seconds_total{name!=""}[5m])) * 100 > 80
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Container {{ $labels.name }} has high CPU usage"
+          description: "Container CPU usage is above 80% (current: {{ $value | humanize }}%)"
+
+      # Container high memory
+      - alert: ContainerHighMemory
+        expr: (container_memory_usage_bytes{name!=""} / container_spec_memory_limit_bytes{name!=""}) * 100 > 80
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Container {{ $labels.name }} has high memory usage"
+          description: "Container memory usage is above 80% of limit (current: {{ $value | humanize }}%)"
+
+      # Container restarting
+      - alert: ContainerRestarting
+        expr: rate(container_last_seen{name!=""}[5m]) > 0
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Container {{ $labels.name }} is restarting frequently"
+          description: "Container has restarted {{ $value }} times in the last 5 minutes."

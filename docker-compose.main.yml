@@ -1,0 +1,29 @@
+# Main Docker Compose Orchestration File
+# This file combines all infrastructure services using the include directive
+#
+# Usage:
+#   Core services only:         docker compose -f docker-compose.main.yml up -d
+#   With Supabase:              docker compose -f docker-compose.main.yml --profile supabase up -d
+#   With monitoring (future):   docker compose -f docker-compose.main.yml --profile monitoring up -d
+#   Everything:                 docker compose -f docker-compose.main.yml --profile supabase --profile monitoring up -d
+#
+# Stop services:                docker compose -f docker-compose.main.yml down
+# View logs:                    docker compose -f docker-compose.main.yml logs -f
+
+# Shared network for all services
+networks:
+  proxy_net:
+    external: true
+    name: proxy_net
+
+
+include:
+  # Core infrastructure: nginx-proxy-manager, MinIO
+  - docker-compose.yml
+
+  # Supabase backend services
+  - path: supa/supabase/docker/docker-compose.yml
+    env_file: .env  # Use root .env for all Supabase services
+
+  # Note: Supabase service overrides are applied via deploy.sh using multiple -f flags
+  # See docker-compose.supabase-overrides.yml for network and storage customizations

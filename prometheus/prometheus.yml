@@ -1,0 +1,113 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  external_labels:
+    cluster: 'memozen'
+    environment: 'stage'
+
+# Alertmanager configuration
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets:
+            - alertmanager:9093
+
+# Load alert rules
+rule_files:
+  - 'alerts.yml'
+
+scrape_configs:
+  # Prometheus self-monitoring
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+        labels:
+          service: 'prometheus'
+
+  # Node Exporter - System metrics (CPU, memory, disk, network)
+  - job_name: 'node-exporter'
+    static_configs:
+      - targets: ['node-exporter:9100']
+        labels:
+          service: 'node-exporter'
+          instance: 'memozen-host'
+
+  # cAdvisor - Container metrics
+  - job_name: 'cadvisor'
+    static_configs:
+      - targets: ['cadvisor:8080']
+        labels:
+          service: 'cadvisor'
+    metric_relabel_configs:
+      # Keep only necessary metrics to reduce storage
+      - source_labels: [__name__]
+        regex: 'container_(cpu|memory|network|fs).*'
+        action: keep
+
+  # PostgreSQL Exporter - Database metrics
+  - job_name: 'postgres'
+    static_configs:
+      - targets: ['postgres-exporter:9187']
+        labels:
+          service: 'postgresql'
+          database: 'postgres'
+
+  # MinIO - Object storage metrics
+  - job_name: 'minio'
+    metrics_path: /minio/v2/metrics/cluster
+    static_configs:
+      - targets: ['minio:9000']
+        labels:
+          service: 'minio'
+
+  # Kong API Gateway - API metrics (if Prometheus plugin enabled)
+  - job_name: 'kong'
+    static_configs:
+      - targets: ['kong:8001']
+        labels:
+          service: 'kong'
+    metric_relabel_configs:
+      # Only scrape if Kong has Prometheus plugin enabled
+      - source_labels: [__name__]
+        regex: 'kong_.*'
+        action: keep
+
+  # Transcription Worker - Application metrics
+  - job_name: 'worker-transcription'
+    static_configs:
+      - targets: ['worker-transcription:8090']
+        labels:
+          service: 'worker'
+          worker_type: 'transcription'
+
+  # Analysis Worker - Application metrics
+  - job_name: 'worker-analysis'
+    static_configs:
+      - targets: ['worker-analysis:8091']
+        labels:
+          service: 'worker'
+          worker_type: 'analysis'
+
+  # Embedding Worker - Application metrics
+  - job_name: 'worker-embedding'
+    static_configs:
+      - targets: ['worker-embedding:8092']
+        labels:
+          service: 'worker'
+          worker_type: 'embedding'
+
+  # Supabase Studio (if metrics are exposed)
+  - job_name: 'supabase-studio'
+    static_configs:
+      - targets: ['studio:3000']
+        labels:
+          service: 'supabase-studio'
+    # Only scrape if Studio exposes metrics
+    scrape_timeout: 5s
+
+  # Grafana - Monitoring UI metrics
+  - job_name: 'grafana'
+    static_configs:
+      - targets: ['grafana:3000']
+        labels:
+          service: 'grafana'

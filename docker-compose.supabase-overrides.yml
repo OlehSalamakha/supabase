@@ -1,0 +1,206 @@
+# Supabase Service Overrides
+# This file adds network configurations and customizations to the Supabase services
+# It is included after the main Supabase docker-compose.yml to override/extend services
+#
+# IMPORTANT: Only core Supabase services are listed here. Optional services that may not
+# exist in all Supabase versions are excluded to prevent "invalid compose project" errors.
+
+services:
+  # Core Supabase services that should always exist
+  # Add proxy_net network to allow communication with core infrastructure
+
+  studio:
+    networks:
+      - default
+
+  kong:
+    ports:
+      - "8000:8000"
+    networks:
+      - default
+
+  auth:
+    networks:
+      - default
+    environment:
+      GOTRUE_EXTERNAL_GOOGLE_ENABLED: ${ENABLE_GOOGLE_SIGNUP}
+      GOTRUE_EXTERNAL_GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
+      GOTRUE_EXTERNAL_GOOGLE_SECRET: ${GOOGLE_CLIENT_SECRET}
+      GOTRUE_EXTERNAL_GOOGLE_SKIP_NONCE_CHECK: false
+      GOTRUE_EXTERNAL_GOOGLE_REDIRECT_URI: ${GOOGLE_REDIRECT_URI}
+      GOTRUE_EXTERNAL_APPLE_ENABLED: ${APPLE_ENABLED}
+      GOTRUE_EXTERNAL_APPLE_CLIENT_ID: ${APPLE_CLIENT_ID}
+      GOTRUE_EXTERNAL_APPLE_SECRET: ${APPLE_SECRET}
+
+          # image: supabase/storage-api:v1.11.13
+    # depends_on:
+    #   minio:
+    #     condition: service_healthy
+    # environment:
+    #   STORAGE_BACKEND: s3
+    #   GLOBAL_S3_BUCKET: memozen
+    #   GLOBAL_S3_ENDPOINT: http://minio:9000
+    #   GLOBAL_S3_PROTOCOL: http
+    #   GLOBAL_S3_FORCE_PATH_STYLE: true
+    #   AWS_ACCESS_KEY_ID: root123
+    #   AWS_SECRET_ACCESS_KEY: MemoZen123
+    #   AWS_DEFAULT_REGION: stub
+
+    # environment:
+    #   ANON_KEY: ${ANON_KEY}
+    #   SERVICE_KEY: ${SERVICE_ROLE_KEY}
+    #   POSTGREST_URL: http://rest:3000
+    #   PGRST_JWT_SECRET: ${JWT_SECRET}
+    #   DATABASE_URL: postgres://supabase_storage_admin:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}
+    #   FILE_SIZE_LIMIT: 52428800
+    #   STORAGE_BACKEND: s3
+    #   GLOBAL_S3_BUCKET: memozen
+    #   GLOBAL_S3_ENDPOINT: http://minio:9000
+    #   GLOBAL_S3_PROTOCOL: http
+    #   GLOBAL_S3_FORCE_PATH_STYLE: true
+    #   AWS_ACCESS_KEY_ID: root123
+    #   AWS_SECRET_ACCESS_KEY: MemoZen123
+    #   AWS_DEFAULT_REGION: stub
+    #   FILE_STORAGE_BACKEND_PATH: /var/lib/storage
+    #   TENANT_ID: stub
+    #   # TODO: https://github.com/supabase/storage-api/issues/55
+    #   REGION: stub
+    #   ENABLE_IMAGE_TRANSFORMATION: "true"
+    #   IMGPROXY_URL: http://imgproxy:5001
+    # volumes:
+    #   - ./volumes/storage:/var/lib/storage:z
+
+
+  storage:
+    networks:
+      - default
+    container_name: supabase-storage
+    image: supabase/storage-api:v1.11.13
+    depends_on:
+      db:
+        # Disable this if you are using an external Postgres database
+        condition: service_healthy
+      rest:
+        condition: service_started
+      imgproxy:
+        condition: service_started
+      minio:
+        condition: service_healthy
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "wget",
+          "--no-verbose",
+          "--tries=1",
+          "--spider",
+          "http://localhost:5000/status"
+        ]
+      timeout: 5s
+      interval: 5s
+      retries: 3
+    restart: unless-stopped 
+    environment:
+      ANON_KEY: ${ANON_KEY}
+      SERVICE_KEY: ${SERVICE_ROLE_KEY}
+      POSTGREST_URL: http://rest:3000
+      PGRST_JWT_SECRET: ${JWT_SECRET}
+      DATABASE_URL: postgres://supabase_storage_admin:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}
+      FILE_SIZE_LIMIT: 52428800
+      STORAGE_BACKEND: s3
+      GLOBAL_S3_BUCKET: memozen
+      GLOBAL_S3_ENDPOINT: http://minio:9000
+      GLOBAL_S3_PROTOCOL: http
+      GLOBAL_S3_FORCE_PATH_STYLE: true
+      AWS_ACCESS_KEY_ID: root123
+      AWS_SECRET_ACCESS_KEY: MemoZen123
+      AWS_DEFAULT_REGION: stub
+      FILE_STORAGE_BACKEND_PATH: /var/lib/storage
+      TENANT_ID: stub
+      # TODO: https://github.com/supabase/storage-api/issues/55
+      REGION: stub
+      ENABLE_IMAGE_TRANSFORMATION: "true"
+      IMGPROXY_URL: http://imgproxy:5001
+    volumes:
+      - ./volumes/storage:/var/lib/storage:z
+
+
+
+
+
+
+  rest:
+    networks:
+      - default
+
+  realtime:
+    networks:
+      - default
+  meta:
+    networks:
+      - default
+
+  db:
+    networks:
+      - default
+    volumes:
+      - ./supa/supabase/docker/volumes/db/realtime.sql:/docker-entrypoint-initdb.d/migrations/99-realtime.sql:Z
+      # Must be superuser to create event trigger
+      - ./supa/supabase/docker/volumes/db/webhooks.sql:/docker-entrypoint-initdb.d/init-scripts/98-webhooks.sql:Z
+      # Must be superuser to alter reserved role
+      - ./supa/supabase/docker/volumes/db/roles.sql:/docker-entrypoint-initdb.d/init-scripts/99-roles.sql:Z
+      # Initialize the database settings with JWT_SECRET and JWT_EXP
+      - ./supa/supabase/docker/volumes/db/jwt.sql:/docker-entrypoint-initdb.d/init-scripts/99-jwt.sql:Z
+      # PGDATA directory is persisted between restarts
+      - ./supa/supabase/docker/volumes/db/data:/var/lib/postgresql/data:Z
+      # Changes required for internal supabase data such as _analytics
+      - ./supa/supabase/docker/volumes/db/_supabase.sql:/docker-entrypoint-initdb.d/migrations/97-_supabase.sql:Z
+      # Changes required for Analytics support
+      - ./supa/supabase/docker/volumes/db/logs.sql:/docker-entrypoint-initdb.d/migrations/99-logs.sql:Z
+      # Changes required for Pooler support
+      - ./supa/supabase/docker/volumes/db/pooler.sql:/docker-entrypoint-initdb.d/migrations/99-pooler.sql:Z
+      - ./migrations/00_init_memozen_schema.sql:/docker-entrypoint-initdb.d/migrations/100-myapp.sql:Z
+      - ./migrations/01_add_raw_text_to_notes.sql:/docker-entrypoint-initdb.d/migrations/101-add-raw-text.sql:Z
+      - ./migrations/02_create_user_usage_table.sql:/docker-entrypoint-initdb.d/migrations/102-create_user_usage_table.sql:Z
+      - ./migrations/03_create_subscriptions_table.sql:/docker-entrypoint-initdb.d/migrations/103-create_subscription_table.sql:Z
+      - ./migrations/04_create_subscription_events_table.sql:/docker-entrypoint-initdb.d/migrations/104-subscription_events.sql:Z
+      - ./migrations/05_alter_user_usage_table.sql:/docker-entrypoint-initdb.d/migrations/105-after_usage.sql:Z
+      # Use named volume to persist pgsodium decryption key between restarts
+      - db-config:/etc/postgresql-custom
+
+  functions:
+    networks:
+      - default
+
+  analytics:
+    networks:
+      - default
+
+
+  imgproxy:
+    networks:
+      - default
+    container_name: supabase-imgproxy
+    image: darthsim/imgproxy:v3.8.0
+    healthcheck:
+      test: [ "CMD", "imgproxy", "health" ]
+      timeout: 5s
+      interval: 5s
+      retries: 3
+    environment:
+      IMGPROXY_BIND: ":5001"
+      IMGPROXY_USE_ETAG: "true"
+      IMGPROXY_ENABLE_WEBP_DETECTION: ${IMGPROXY_ENABLE_WEBP_DETECTION}
+
+  vector:
+    networks:
+      - default
+
+  supavisor:
+    networks:
+      - default
+
+  # db-config:
+  #   networks:
+  #     - default
+  #     - proxy_net
