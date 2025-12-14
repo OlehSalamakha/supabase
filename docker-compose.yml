@@ -239,7 +239,7 @@ services:
     # build:
     #   context: ../worker-analysis
     #   dockerfile: Dockerfile
-    image:git.peinlab.pp.ua/memozen/worker-analysis:latest
+    image: git.peinlab.pp.ua/memozen/worker-analysis:latest
     container_name: memozen-analysis-worker
     restart: unless-stopped
     networks:
