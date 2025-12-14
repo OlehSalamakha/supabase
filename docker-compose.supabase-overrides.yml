@@ -22,12 +22,12 @@ services:
     labels:
       - "traefik.enable=true"
       # HTTP → HTTPS redirect (опціонально, але рекомендую)
-      - "traefik.http.routers.kong-http.rule=Host(`${API_EXTERNAL_URL}`)"
+      - "traefik.http.routers.kong-http.rule=Host(`stagesupa.memozen.ai`)"
       - "traefik.http.routers.kong-http.entrypoints=web"
       - "traefik.http.routers.kong-http.middlewares=redirect-to-https"
 
     # HTTPS router
-      - "traefik.http.routers.kong.rule=Host(`${API_EXTERNAL_URL}`)"
+      - "traefik.http.routers.kong.rule=Host(`stagesupa.memozen.ai`)"
       - "traefik.http.routers.kong.entrypoints=websecure"
       - "traefik.http.routers.kong.tls=true"
       - "traefik.http.routers.kong.tls.certresolver=letsencrypt"
