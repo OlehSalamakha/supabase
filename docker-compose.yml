@@ -210,7 +210,7 @@ services:
     # build:
     #   context: ../worker-transcription
     #   dockerfile: Dockerfile
-    image: worker_transcription:1.0.0
+    image: git.peinlab.pp.ua/memozen/worker-transription:latest
     container_name: memozen-transcription-worker
     restart: unless-stopped
     networks:
@@ -239,7 +239,7 @@ services:
     # build:
     #   context: ../worker-analysis
     #   dockerfile: Dockerfile
-    image: worker_analysis:1.0.0
+    image:git.peinlab.pp.ua/memozen/worker-analysis:latest
     container_name: memozen-analysis-worker
     restart: unless-stopped
     networks:
@@ -267,7 +267,7 @@ services:
      # build:
      #   context: ../worker-embedding
      #   dockerfile: Dockerfile
-     image: worker_embedding:1.0.0
+     image: git.peinlab.pp.ua/memozen/worker-embedding:latest
      container_name: memozen-embedding-worker
      restart: unless-stopped
      networks:
@@ -295,7 +295,7 @@ services:
     # build:
     #   context: ../worker-renewal
     #   dockerfile: Dockerfile
-    image: worker_renewal:1.0.0
+    image: git.peinlab.pp.ua/memozen/worker-renewal:latest
     container_name: memozen-renewal-worker
     restart: unless-stopped
     networks:
