@@ -210,7 +210,7 @@ services:
     # build:
     #   context: ../worker-transcription
     #   dockerfile: Dockerfile
-    image: git.peinlab.pp.ua/memozen/worker-transription:latest
+    image: git.peinlab.pp.ua/memozen/worker-transcription:latest
     container_name: memozen-transcription-worker
     restart: unless-stopped
     networks:
