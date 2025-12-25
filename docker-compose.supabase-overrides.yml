@@ -174,7 +174,7 @@ services:
       # Initialize the database settings with JWT_SECRET and JWT_EXP
       - ${PWD}/docker/volumes/db/jwt.sql:/docker-entrypoint-initdb.d/init-scripts/99-jwt.sql:Z
       # PGDATA directory is persisted between restarts
-      - ${PWD}/docker/volumes/db/data:/var/lib/postgresql/data:Z
+      - supabase-db-data:/var/lib/postgresql/data
       # Changes required for internal supabase data such as _analytics
       - ${PWD}/docker/volumes/db/_supabase.sql:/docker-entrypoint-initdb.d/migrations/97-_supabase.sql:Z
       # Changes required for Analytics support
@@ -231,6 +231,10 @@ services:
 networks:
   dokploy-network:
     external: true
+
+volumes:
+  supabase-db-data:
+  db-config:
 
   # db-config:
   #   networks:
