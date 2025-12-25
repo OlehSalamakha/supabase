@@ -11,6 +11,20 @@ CREATE TABLE IF NOT EXISTS public.subscription_events (
   created_at timestamptz DEFAULT now()
 );
 
+-- Add notes table to realtime publication (skip if already added)
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_publication_tables
+    WHERE pubname = 'supabase_realtime'
+    AND schemaname = 'public'
+    AND tablename = 'subscription_events'
+  ) THEN
+    ALTER PUBLICATION supabase_realtime ADD TABLE public.subscription_events;
+  END IF;
+END $$;
+
+
 -- Create index on user_id for user event history
 CREATE INDEX IF NOT EXISTS idx_subscription_events_user_id ON public.subscription_events(user_id);
 

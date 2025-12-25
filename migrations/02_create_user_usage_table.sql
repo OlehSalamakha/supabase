@@ -8,6 +8,21 @@ CREATE TABLE IF NOT EXISTS public.user_usage (
   CONSTRAINT user_usage_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE
 );
 
+
+-- Add notes table to realtime publication (skip if already added)
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_publication_tables
+    WHERE pubname = 'supabase_realtime'
+    AND schemaname = 'public'
+    AND tablename = 'user_usage'
+  ) THEN
+    ALTER PUBLICATION supabase_realtime ADD TABLE public.user_usage;
+  END IF;
+END $$;
+
+
 -- Enable Row Level Security on user_usage table
 ALTER TABLE public.user_usage ENABLE ROW LEVEL SECURITY;
 
