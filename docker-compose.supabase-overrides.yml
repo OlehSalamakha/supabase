@@ -49,6 +49,7 @@ services:
       GOTRUE_EXTERNAL_APPLE_ENABLED: ${APPLE_ENABLED}
       GOTRUE_EXTERNAL_APPLE_CLIENT_ID: ${APPLE_CLIENT_ID}
       GOTRUE_EXTERNAL_APPLE_SECRET: ${APPLE_SECRET}
+      GOTRUE_MAILER_SUBJECTS_CONFIRMATION: test_subject_mail
 
           # image: supabase/storage-api:v1.11.13
     # depends_on:
