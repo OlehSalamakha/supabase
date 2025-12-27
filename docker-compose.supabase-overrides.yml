@@ -51,10 +51,12 @@ services:
       GOTRUE_EXTERNAL_APPLE_SECRET: ${APPLE_SECRET}
       GOTRUE_MAILER_SUBJECTS_CONFIRMATION: ${CONFIRMATION_SUBJECT}
       GOTRUE_MAILER_SUBJECTS_MAGIC_LINK: "SUBJ_MAGIC"
-      GOTRUE_MAILER_SUBJECTS_RECOVERY: "SUBJ_RECOVERY"
       GOTRUE_MAILER_SUBJECTS_INVITE: "SUBJ_INVITE"
       GOTRUE_MAILER_SUBJECTS_EMAIL_CHANGE: "SUBJ_EMAIL_CHANGE"
       GOTRUE_MAILER_TEMPLATES_CONFIRMATION: ${CONFIRMATION_BODY}
+      GOTRUE_MAILER_TEMPLATES_RECOVERY: ${RECOVERY_BODY}
+    volumes:
+     - ${PWD}/volumes/templates:/app/templates
 
           # image: supabase/storage-api:v1.11.13
     # depends_on:
@@ -92,7 +94,7 @@ services:
     #   ENABLE_IMAGE_TRANSFORMATION: "true"
     #   IMGPROXY_URL: http://imgproxy:5001
     # volumes:
-    #   - ./volumes/storage:/var/lib/storage:z
+    #  uth - ./volumes/storage:/var/lib/storage:z
 
 
   storage:
