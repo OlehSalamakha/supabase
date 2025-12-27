@@ -72,7 +72,7 @@ double_confirm_changes = true
 # If enabled, users need to confirm their email address before signing in.
 enable_confirmations = false
 
-[auth.email.template.invite]
+[auth.email.template.confirmation]
 subject = "Confirm Your Email"
 content_path = "./supabase/templates/invite.html"
 # Uncomment the following to use gh oAuth app locally with your own test app
