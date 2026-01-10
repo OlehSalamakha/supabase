@@ -220,6 +220,7 @@ services:
     ports:
       - "8090:8090"  # Prometheus metrics endpoint
     environment:
+      - TRANSCRIPTION_URL=${TRANSCRIPTION_URL}
       - SUPABASE_URL=${API_EXTERNAL_URL}
       - SUPABASE_KEY=${SERVICE_ROLE_KEY}
       - OPENAI_API_KEY=${OPENAI_API_KEY}
