@@ -251,6 +251,7 @@ services:
     ports:
       - "8091:8091"  # Prometheus metrics endpoint
     environment:
+      - ANALYSIS_URL=${ANALYSIS_URL}
       - SUPABASE_URL=${API_EXTERNAL_URL}
       - SUPABASE_KEY=${SERVICE_ROLE_KEY}
       - OPENAI_API_KEY=${OPENAI_API_KEY}
