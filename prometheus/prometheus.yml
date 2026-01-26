@@ -52,6 +52,11 @@ scrape_configs:
           service: 'postgresql'
           database: 'postgres'
 
+  - job_name: "macmini-node"
+    scheme: https
+    static_configs:
+      - targets: ["node.memozen.ai"]
+
   # MinIO - Object storage metrics
   - job_name: 'minio'
     metrics_path: /minio/v2/metrics/cluster
