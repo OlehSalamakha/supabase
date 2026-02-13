@@ -2,7 +2,7 @@
 -- This table tracks all subscription lifecycle events
 CREATE TABLE IF NOT EXISTS public.subscription_events (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id uuid NOT NULL REFERENCES auth.users(id),
+  user_id uuid NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
   event_type text NOT NULL,  -- 'initial_purchase', 'renewal', 'cancellation', 'expiration', 'reactivation'
   product_id text,           -- 'monthly', 'yearly', or 'free'
   seconds_granted integer,   -- Number of seconds granted with this event

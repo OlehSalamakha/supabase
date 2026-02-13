@@ -32,6 +32,32 @@ serve(async (req: Request) => {
     Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
   );
 
+  // Delete all storage objects in the user's folder before deleting the user
+  const { data: files, error: listError } = await supabaseAdmin.storage
+    .from("memozen")
+    .list(userId);
+
+  if (listError) {
+    return new Response(
+      JSON.stringify({ error: `Failed to list storage files: ${listError.message}` }),
+      { status: 500, headers: { "Content-Type": "application/json" } },
+    );
+  }
+
+  if (files && files.length > 0) {
+    const paths = files.map((f) => `${userId}/${f.name}`);
+    const { error: deleteStorageError } = await supabaseAdmin.storage
+      .from("memozen")
+      .remove(paths);
+
+    if (deleteStorageError) {
+      return new Response(
+        JSON.stringify({ error: `Failed to delete storage files: ${deleteStorageError.message}` }),
+        { status: 500, headers: { "Content-Type": "application/json" } },
+      );
+    }
+  }
+
   const { error } = await supabaseAdmin.auth.admin.deleteUser(userId);
 
   if (error) {

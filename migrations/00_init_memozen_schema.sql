@@ -24,7 +24,7 @@ CREATE TABLE IF NOT EXISTS public.notes (
   claimed_at timestamp with time zone,
   claimed_by text,
   CONSTRAINT notes_pkey PRIMARY KEY (id),
-  CONSTRAINT notes_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id)
+  CONSTRAINT notes_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE
 );
 
 -- Add notes table to realtime publication (skip if already added)
@@ -48,7 +48,7 @@ CREATE TABLE IF NOT EXISTS public.note_embeddings (
   content text,
   embedding vector,
   CONSTRAINT note_embeddings_pkey PRIMARY KEY (id),
-  CONSTRAINT note_embeddings_note_id_fkey FOREIGN KEY (note_id) REFERENCES public.notes(id)
+  CONSTRAINT note_embeddings_note_id_fkey FOREIGN KEY (note_id) REFERENCES public.notes(id) ON DELETE CASCADE
 );
 
 -- Enable Row Level Security on notes table
